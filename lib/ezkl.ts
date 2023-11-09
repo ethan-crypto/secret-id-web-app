@@ -14,7 +14,7 @@ import { Hardfork } from "@ezkljs/verify";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import JSONBig from "json-bigint";
-import type { Tensor } from "@tensorflow/tfjs";
+// import type { Tensor } from "@tensorflow/tfjs";
 
 async function getDataBuffer(name: string): Promise<ArrayBuffer> {
   // Helper function to fetch and create a file object from a public URL
@@ -139,7 +139,7 @@ interface Uint8ArrayResult {
 
 export async function handleGenProofButton(witness: Uint8ClampedArray) {
   const start = performance.now(); // Start the timer
-
+  console.log("proof start")
   let output = prove(
     witness,
     new Uint8ClampedArray(await getDataBuffer("key.pk")),
@@ -194,12 +194,13 @@ export async function handleGenElgamalDecryptionButton<T extends FileMapping>(
 }
 
 export async function handleGenWitnessButton(
-  input: Tensor
+  input: any[]
 ): Promise<Uint8ArrayResult> {
   const start = performance.now(); // Start the timer
   const formattedInput = {
-    input_data: [input.flatten().arraySync()],
+    input_data: [input],
   };
+  console.log("formattedInput", formattedInput);
   let output = genWitness(
     new Uint8ClampedArray(await getDataBuffer("compiled_model.ezkl")),
     new Uint8ClampedArray(

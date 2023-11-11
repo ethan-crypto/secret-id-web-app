@@ -1,6 +1,6 @@
 .App {
-    text-align: center;
-  }
+  text-align: center;
+}
 
 .canvas {
   display: flex;
@@ -39,6 +39,14 @@
   border-radius: 8px;
 }
 
+h2 {
+  color: white;
+}
+
 body {
   font-family: sans-serif;
+}
+
+.color-white {
+  color: white;
 }

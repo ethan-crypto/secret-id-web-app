@@ -81,9 +81,11 @@ export function MNISTDraw() {
     const [quantizedEmbedding, setQuantizedEmbedding] = useState<number[]>([]);
     const [prediction, setPrediction] = useState<number>(-1);
     const [witnessSer, setWitnessSer] = useState<Uint8ClampedArray | null>(null);
-    const [proof, setProof] = useState('');
+    const [proof, setProof] = useState<any | null>(null);
     const [generatingProof, setGeneratingProof] = useState(false);
+    const [generatingVerification, setGeneratingVerifaction] = useState(false);
     const [proofDone, setProofDone] = useState(false);
+    const [predictionDone, setPredictionDone] = useState(false);
     const [publicSignal, setPublicSignal] = useState<number[]>([]);
     const [isVerified, setIsVerified] = useState(false);
     const [verifyDone, setVerifyDone] = useState(false);
@@ -129,6 +131,7 @@ export function MNISTDraw() {
             setWitnessSer(witnessSer);
             const prediction = getPrediction(witnessSer.outputs);
             setPrediction(prediction);
+            setPredictionDone(true);
             console.log("witnessSer", JSON.stringify(witnessSer, null, 4));
             console.log("witness", witness);
         } catch (error) {
@@ -159,6 +162,7 @@ export function MNISTDraw() {
     function resetImage() {
         var newArray = Array(size).fill(null).map(_ => Array(size).fill(0));
         setGrid(newArray);
+        setPredictionDone(false);
         setProofDone(false);
         setVerifyDone(false);
     }
@@ -177,7 +181,7 @@ export function MNISTDraw() {
                 className={styles.button}
                 text="Classify & Prove"
                 loading={generatingProof}
-                loadingText="Generating..."
+                loadingText="Proving..."
                 onClick={doProof}
             />
         );
@@ -185,28 +189,31 @@ export function MNISTDraw() {
 
     function VerifyButton() {
         return (
-            <button className="button" onClick={doVerify}>
-                Verify
-            </button>
+            <Button
+                className={styles.button}
+                text="Verify"
+                loading={generatingVerification}
+                loadingText="Verifying..."
+                onClick={doVerify}
+            />
         );
     }
 
     function ResetButton() {
         return (
-            <button className="button" onClick={resetImage}>
-                Reset image
-            </button>
+            <Button
+                className={styles.button}
+                text="Reset"
+                onClick={resetImage}
+            />
         );
     }
 
     function ProofBlock() {
         return (
             <div className="proof">
-                <h2>Prediction</h2>
-                {prediction}
-                <h2>Proof of computation</h2>
                 <CopyBlock
-                    text={JSON.stringify(proof, null, 2)}
+                    text={JSON.stringify(proof.proof, null, 2)}
                     language="json"
                     theme={dracula}
                 />
@@ -214,9 +221,18 @@ export function MNISTDraw() {
         );
     }
 
+    function PredictionBlock() {
+        return (
+            <div className="predction color-white">
+                <h2>Prediction</h2>
+                {prediction}
+            </div>
+        );
+    }
+
     function VerifyBlock() {
         return (
-            <div className="proof">
+            <div className="verify">
                 <h2>Verified by on-chain smart contract: {JSON.stringify(isVerified)}</h2>
             </div>
         );
@@ -227,13 +243,13 @@ export function MNISTDraw() {
             <h2>Draw and classify a digit</h2>
             <div className="container">
                 <MNISTBoard grid={grid} onChange={(r, c) => handleSetSquare(r, c)} />
-
                 <div className="buttonPanel">
                     <ProofButton />
                     <VerifyButton />
                     <ResetButton />
                 </div>
             </div>
+            {predictionDone && PredictionBlock()}
             {proofDone && ProofBlock()}
             {verifyDone && VerifyBlock()}
         </div>
